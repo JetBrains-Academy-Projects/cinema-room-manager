@@ -14,6 +14,14 @@ public class Cinema {
         this.initializeSeats();
     }
 
+    public int getM() {
+        return m;
+    }
+
+    public int getN() {
+        return n;
+    }
+
     private void initializeSeats() {
         for(int i=0; i<this.m; i++){
             for(int j=0; j<this.n; j++){
@@ -30,7 +38,6 @@ public class Cinema {
         }
         System.out.println();
 
-
         for(int i=0; i<this.m; i++){
             System.out.print(i+1);
             for(int j=0; j<this.n; j++){
@@ -43,20 +50,64 @@ public class Cinema {
     }
 
     public int bookSeat(int i, int j){
-        // book seat
-        this.seats[i-1][j-1] = false;
 
-        // calculate the ticket price
-        int ticketPrice = 0;
+        if(this.seats[i-1][j-1]){
+            // book seat
+            this.seats[i-1][j-1] = false;
 
-        if (this.m * this.n <= 60) {
-            ticketPrice = this.ticketPriceHigh;
+            // calculate the ticket price
+            int ticketPrice;
+
+            if (this.m * this.n <= 60) {
+                ticketPrice = this.ticketPriceHigh;
+            } else {
+                int frontRows = (this.m / 2);
+                if(i <= frontRows) ticketPrice = this.ticketPriceHigh;
+                else ticketPrice = this.ticketPriceLow;
+            }
+            return ticketPrice;
         } else {
-            int frontRows = (this.m / 2);
-            if(i <= frontRows) ticketPrice = this.ticketPriceHigh;
-            else ticketPrice = this.ticketPriceLow;
+            return -1;
         }
-        return ticketPrice;
+    }
+
+    public void printStatistics(){
+        int purchasedTicketsCount = 0;
+        float purchasedTicketsPercent;
+        int currentIncome = 0;
+        int totalIncome = 0;
+
+        for(int i=0; i<this.m; i++){
+            for(int j=0; j<this.n; j++){
+                if(!this.seats[i][j]){
+                    purchasedTicketsCount++;
+
+                    if (this.m * this.n <= 60) {
+                        currentIncome += this.ticketPriceHigh;
+                    } else {
+                        int frontRows = (this.m / 2);
+                        if(i < frontRows) currentIncome += this.ticketPriceHigh;
+                        else currentIncome += this.ticketPriceLow;
+                    }
+                } else {
+                    if (this.m * this.n <= 60) {
+                        totalIncome += this.ticketPriceHigh;
+                    } else {
+                        int frontRows = (this.m / 2);
+                        if(i < frontRows) totalIncome += this.ticketPriceHigh;
+                        else totalIncome += this.ticketPriceLow;
+                    }
+                }
+            }
+        }
+
+        totalIncome += currentIncome;
+        purchasedTicketsPercent = (float) (purchasedTicketsCount * 100) / (this.m * this.n);
+
+        System.out.println("Number of purchased tickets: " + purchasedTicketsCount);
+        System.out.println("Percentage: " + String.format("%.2f", purchasedTicketsPercent) + "%");
+        System.out.println("Current income: $" + currentIncome);
+        System.out.println("Total income: $" + totalIncome);
     }
 
     public static void main(String[] args) {
@@ -73,34 +124,48 @@ public class Cinema {
 
         boolean running = true;
         while(running){
-            System.out.println("\n1. Show the seats\n" +
-                    "2. Buy a ticket\n" +
-                    "0. Exit");
+            System.out.println("""
+
+                    1. Show the seats
+                    2. Buy a ticket
+                    3. Statistics
+                    0. Exit""");
             int choice = scanner.nextInt();
             System.out.println();
 
-            switch(choice){
-                case 1:
-                    cinema.printSeats();
-                    break;
+            switch (choice) {
+                case 1 -> cinema.printSeats();
+                case 2 -> {
+                    boolean isBookingDone = false;
+                    while (!isBookingDone) {
+                        boolean isBookingDoneInner = false;
+                        int seatM = -1, seatN = -1;
 
-                case 2:
-                    int seatM, seatN;
+                        while (!isBookingDoneInner) {
+                            System.out.println("Enter a row number:");
+                            seatM = scanner.nextInt();
 
-                    System.out.println("Enter a row number:");
-                    seatM = scanner.nextInt();
+                            System.out.println("Enter a seat number in that row:");
+                            seatN = scanner.nextInt();
 
-                    System.out.println("Enter a seat number in that row:");
-                    seatN = scanner.nextInt();
+                            if ((cinema.getM() < seatM) || (cinema.getN() < seatN)) {
+                                System.out.println("\nWrong input!\n");
+                            } else {
+                                isBookingDoneInner = true;
+                            }
+                        }
 
-                    int ticketPrice = cinema.bookSeat(seatM, seatN);
-                    System.out.println("Ticket price: $" + ticketPrice);
-
-                    break;
-
-                case 0:
-                    running = false;
-                    break;
+                        int ticketPrice = cinema.bookSeat(seatM, seatN);
+                        if (ticketPrice == -1) {
+                            System.out.println("\nThat ticket has already been purchased!\n");
+                        } else {
+                            isBookingDone = true;
+                            System.out.println("\nTicket price: $" + ticketPrice);
+                        }
+                    }
+                }
+                case 3 -> cinema.printStatistics();
+                case 0 -> running = false;
             }
         }
     }
