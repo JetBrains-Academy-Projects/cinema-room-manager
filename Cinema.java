@@ -10,9 +10,11 @@ public class Cinema {
     public Cinema(int m, int n){
         this.m = m;
         this.n = n;
+
+        this.initializeSeats();
     }
 
-    public void initializeSeats() {
+    private void initializeSeats() {
         for(int i=0; i<this.m; i++){
             for(int j=0; j<this.n; j++){
                 this.seats[i][j] = true; // true means available
@@ -21,7 +23,7 @@ public class Cinema {
     }
 
     public void printSeats() {
-        System.out.println("\nCinema:");
+        System.out.println("Cinema:");
         System.out.print(" ");
         for(int i=0; i<this.n; i++){
             System.out.print(" " + (i + 1));
@@ -37,6 +39,7 @@ public class Cinema {
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     public int bookSeat(int i, int j){
@@ -59,7 +62,6 @@ public class Cinema {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int m, n;
-        int seatM, seatN;
 
         System.out.println("Enter the number of rows:");
         m = scanner.nextInt();
@@ -69,19 +71,37 @@ public class Cinema {
 
         Cinema cinema = new Cinema(m, n);
 
-        cinema.initializeSeats();
-        cinema.printSeats();
+        boolean running = true;
+        while(running){
+            System.out.println("\n1. Show the seats\n" +
+                    "2. Buy a ticket\n" +
+                    "0. Exit");
+            int choice = scanner.nextInt();
+            System.out.println();
 
-        System.out.println();
-        System.out.println("Enter a row number:");
-        seatM = scanner.nextInt();
+            switch(choice){
+                case 1:
+                    cinema.printSeats();
+                    break;
 
-        System.out.println("Enter a seat number in that row:");
-        seatN = scanner.nextInt();
+                case 2:
+                    int seatM, seatN;
 
-        int ticketPrice = cinema.bookSeat(seatM, seatN);
+                    System.out.println("Enter a row number:");
+                    seatM = scanner.nextInt();
 
-        System.out.println("Ticket price: $" + ticketPrice);
-        cinema.printSeats();
+                    System.out.println("Enter a seat number in that row:");
+                    seatN = scanner.nextInt();
+
+                    int ticketPrice = cinema.bookSeat(seatM, seatN);
+                    System.out.println("Ticket price: $" + ticketPrice);
+
+                    break;
+
+                case 0:
+                    running = false;
+                    break;
+            }
+        }
     }
 }
